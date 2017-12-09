@@ -11,17 +11,19 @@
       <a *ngIf="current_announcement.read_more && current_announcement.read_more.length > 0" href="/blog/{{ current_announcement.read_more }}">Read More</a>
     </div>
   </div>
-
-  <!--<div id="side-bar">
-    <h2>Welcome!</h2>
+  <div id="side-bar">
+    <h2></h2>
     <p>
-      The Orange Alliance is a project to help make FTC match, event and team information more accessible. The project is in it's early stages, so many pages aren't complete and a lot of data is missing. You're more than welcome to submit data or contribute code.</p>
+      The Orange Alliance is a project to help make FTC match, event, and team information more accessible. The project is in its early stages. You're more than welcome to contribute code.</p>
       <button onclick="window.location.href='https://discord.gg/5fH66UV'" class="sidebar-button">Chat with us on Discord!</button>
       <br>
       <button onclick="window.location.href='https://goo.gl/forms/kgMtJgXq6QCny4vm1'" class="sidebar-button">Contact us Here!</button>
       <br>
       <button onclick="window.location.href='https://github.com/orange-alliance'" class="sidebar-button">Contribute on Github!</button>
-  </div>-->
+    <br>
+    <p align="center"><strong>Powered By:</strong></p>
+    <p align="center"><a href="http://www.revrobotics.com/" target="_blank"><img src="../../../assets/imgs/media_icons/REV_LOGO_LIGHT.png"></a></p>
+  </div>
 
   <br/>
 
@@ -36,19 +38,22 @@
       <table class="table table-striped">
         <thead>
         <tr>
-          <th>Event</th>
-          <th>Dates</th>
+          <th style="text-align: center;">Region</th>
+          <th style="text-align: center;">Event</th>
+          <th style="text-align: center;">Dates</th>
         </tr>
         </thead>
         <tbody *ngIf="current_events.length <= 0">
           <tr>
-            <td colspan="2"><i>There are no events occurring this week.</i></td>
+            <td colspan="3"><i>There are no events occurring this week.</i></td>
           </tr>
         </tbody>
         <tbody *ngIf="current_events.length > 0">
         <tr *ngFor="let event of current_events">
-          <td>{{ event.event_name }}</td>
-          <td>{{ event.start_date | date :  "mediumDate"}} - {{ event.end_date | date :  "mediumDate" }}</td>
+          <td>{{ event.region_key }}</td>
+          <td><a href="/events/{{ event.event_key }}">{{ event.event_name }}</a></td>
+          <td *ngIf="event.start_date != event.end_date">{{ event.start_date | date :  "mediumDate"}} - {{ event.end_date | date :  "mediumDate" }}</td>
+          <td *ngIf="event.start_date == event.end_date">{{ event.start_date | date :  "mediumDate"}}</td>
         </tr>
         </tbody>
       </table>
@@ -59,7 +64,7 @@
 
   <div class="row">
     <div class="col-xs-12 col-md-8 col-md-offset-2">
-      <h3 class="mar-0">2016-2017 FTC Recap</h3>
+      <h3 class="mar-0">2017-2018 FTC Leaderboard</h3>
       <h3 class="mar-0"><small *ngIf="match_count"> {{ match_count }} Matches</small></h3>
     </div>
   </div>
@@ -241,6 +246,27 @@
           <td class="blue" [class.match-winner]="normal_match.red_score <= normal_match.blue_score">
             {{ normal_match.blue_score }}
           </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="match_count && match_insights" class="row" style="display: none;">
+    <div class="col-xs-12 col-md-8 col-md-offset-2 mar-top-20">
+      <table class="stats-table table table-responsive table-striped">
+        <thead>
+        <tr>
+          <td>Name</td>
+          <td>Average</td>
+          <td>Times Possible</td>
+        </tr>
+        </thead>
+        <tbody *ngIf="insights">
+        <tr *ngFor="let stat of insights" >
+          <td>{{ stat.field }}</td>
+          <td>{{ stat.value }}</td>
+          <td>{{ match_count }}</td>
         </tr>
         </tbody>
       </table>

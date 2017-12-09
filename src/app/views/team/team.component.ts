@@ -3,11 +3,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FTCDatabase } from '../../providers/ftc-database';
 import { MatchSorter, MatchType } from '../../util/match-utils';
 import { EventSorter } from '../../util/event-utils';
+import { TheOrangeAllianceGlobals } from '../../app.globals';
 
 @Component({
   selector: 'toa-team',
   templateUrl: './team.component.html',
-  providers: [FTCDatabase]
+  providers: [FTCDatabase,TheOrangeAllianceGlobals]
 })
 export class TeamComponent implements OnInit {
 
@@ -26,9 +27,9 @@ export class TeamComponent implements OnInit {
   seasons: any;
   current_season: any;
 
-  constructor(private ftc: FTCDatabase, private route: ActivatedRoute, private router: Router) {
+  constructor(private ftc: FTCDatabase, private route: ActivatedRoute, private router: Router, private globaltoa:TheOrangeAllianceGlobals) {
     this.team_key = this.route.snapshot.params['team_key'];
-    this.current_season = { season_key: "1617", season_desc: "Velocity Vortex" };
+    this.current_season = { season_key: '1718', season_desc: 'Relic Recovery' };
     this.qual_matches = [];
     this.quarters_matches = [];
     this.semis_matches = [];
@@ -38,7 +39,7 @@ export class TeamComponent implements OnInit {
 
   ngOnInit(): void {
     this.years = [];
-    this.ftc.getTeam(this.team_key, 2017).subscribe((data) => {
+    this.ftc.getTeam(this.team_key).subscribe((data) => {
       if (!data[0][0]) {
         this.router.navigate(['/not-found']);
       } else {
@@ -57,11 +58,12 @@ export class TeamComponent implements OnInit {
         }, (err) => {
           console.log(err);
         });
-
+        this.globaltoa.setTitle(this.team.team_name_short + " (" + this.team.team_key +")");
       }
     }, (err) => {
       console.log(err);
     });
+
   }
 
   getTeamSeasons(season_data: any) {
@@ -98,7 +100,7 @@ export class TeamComponent implements OnInit {
   }
 
   getEventMatches() {
-    this.team.events = this.event_sorter.sort(this.team.events, 0, this.team.events.length - 1);
+    this.team.events = this.event_sorter.sortRev(this.team.events, 0, this.team.events.length - 1);
 
     for (const event of this.team.events) {
       this.ftc.getEventMatches(event.event_key, this.convertSeason(this.current_season)).subscribe((data) => {
@@ -180,52 +182,74 @@ export class TeamComponent implements OnInit {
   }
 
   convertSeason(season: any) {
-    let year = 2017;
-    switch (season.season_key) {
-      case "1718":
-        year = 2018;
-        break;
-      case "1617":
-        year = 2017;
-        break;
-      case "1516":
-        year = 2016;
-        break;
-      case "1415":
-        year = 2015;
-        break;
-      case "1314":
-        year = 2014;
-        break;
-      case "1213":
-        year = 2013;
-        break;
-      case "1112":
-        year = 2012;
-        break;
-      case "1011":
-        year = 2011;
-        break;
-      case "0910":
-        year = 2010;
-        break;
-      case "0809":
-        year = 2009;
-        break;
-      case "0708":
-        year = 2008;
-        break;
-    }
-    return year;
+    return season.season_key;
   }
 
   getStation(match_data, station: number): string {
-    return match_data.teams.toString().split(',')[station];
+    const teams = match_data.teams.toString().split(',');
+    const stations = match_data.station_status.toString().split(',');
+    if (stations[station] === '0') {
+      return teams[station] + '*';
+    } else {
+      return teams[station];
+    }
   }
+  getStationTeam(match_data, station: number): string {
+    const teams = match_data.teams.toString().split(',');
+    const stations = match_data.station_status.toString().split(',');
 
+    return teams[station];
+  }
   getStationLength(match_data): number {
     return match_data.teams.toString().split(',').length;
   }
+  
+  getTeamResult(match, team:number): string {
+    //return team.toString();
+	if (match.red_score!=null) { // match score exists
+	  if (match.red_score == match.blue_score) {
+	    return "T";
+	  }
+	  if (match.red_score > match.blue_score) {
+	    if (this.getStationLength(match) == 6) {
+		  if ((team.toString() == this.getStationTeam(match,0)) ||(team.toString() == this.getStationTeam(match,1)) ||(team.toString() == this.getStationTeam(match,2))) {
+		    return "W";
+		  } else {
+			return "L";
+		  }
+		} else {
+		  if ((team.toString() == this.getStationTeam(match,0)) ||(team.toString() == this.getStationTeam(match,1))) {
+		    return "W";
+		  } else {
+			return "L";
+		  }
+		}
+	  } else {
+	  	if (this.getStationLength(match) == 6) {
+		  if ((team.toString() == this.getStationTeam(match,0)) ||(team.toString() == this.getStationTeam(match,1)) ||(team.toString() == this.getStationTeam(match,2))) {
+		    return "L";
+		  } else {
+			return "W";
+		  }
+		} else {
+		  if ((team.toString() == this.getStationTeam(match,0)) ||(team.toString() == this.getStationTeam(match,1))) {
+		    return "L";
+		  } else {
+			return "W";
+		  }
+		}
+	  }
+	} else {
+	  return " "; // no match score yet
+	}
+  }
+  getStationHref(match_data, station: number): string {
+    const teams = match_data.teams.toString().split(',');
+    const stations = match_data.station_status.toString().split(',');
+    return teams[station];
+  }
+
+
 
   isCurrentTeam(match_data, station: number): boolean {
     return match_data.teams.toString().split(',')[station] === this.team_key;

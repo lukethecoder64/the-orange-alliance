@@ -13,7 +13,7 @@
     <ul class="nav navbar-nav">
       <li class="toggleable" ><a routerLink="/teams" routerLinkActive="active">Teams</a></li>
       <li class="toggleable" ><a routerLink="/events" routerLinkActive="active">Events</a></li>
-      <li class="toggleable" ><a routerLink="/ranking" routerLinkActive="active">Rankings</a></li>
+      <!--<li class="toggleable" ><a routerLink="/ranking" routerLinkActive="active">Rankings</a></li>-->
       <li class="toggleable" ><a routerLink="/stream" routerLinkActive="active">Streaming</a></li>
       <li class="toggleable" ><a routerLink="/about" routerLinkActive="active">About</a></li>
     </ul>
@@ -24,7 +24,7 @@
       <ul id="search" class="dropdown-menu search-results" aria-labelledby="ftc_search">
         <li><a (click)="hideDropdown()">Close <span class="fa fa-close"></span></a></li>
         <li *ngFor="let result of team_search_results"><a href="/teams/{{result.team_key}}">{{ result.team_key }} - {{ result.team_name_short }}</a></li>
-        <li *ngFor="let result of event_search_results"><a href="/events/{{result.event_key}}">{{ result.event_name }}</a></li>
+        <li *ngFor="let result of event_search_results"><a href="/events/{{result.event_key}}">[{{ result.event_key }}] {{ result.start_date | date : "y" }} {{ result.event_name }}</a></li>
         <li *ngIf="team_search_results.length <= 0"><a><i>No team results</i></a></li>
         <li *ngIf="event_search_results.length <= 0"><a><i>No event results</i></a></li>
       </ul>
@@ -42,7 +42,13 @@
 <footer>
   <div class="row">
     <div class="col-xs-12 col-md-8 col-md-offset-2 text-center">
-      <p><a routerLink="apidocs">API</a> | <a href="https://goo.gl/forms/kgMtJgXq6QCny4vm1" target="_blank">Contact Us</a> | <a routerLink="privacy">Privacy</a> | <a routerLink="terms">Terms</a></p>
+      <p><strong>Powered By:     </strong><a href="http://www.revrobotics.com/" target="_blank"><img src="../../../assets/imgs/media_icons/REV_LOGO_WHITE.png"></a></p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12 col-md-8 col-md-offset-2 text-center">
+      <p><a routerLink="apidocs">API</a> | <a href="mailto:contact@theorangealliance.org" target="_blank">Contact Us</a> | <a routerLink="privacy">Privacy</a> | <a routerLink="terms">Terms</a></p>
     </div>
   </div>
 
@@ -66,7 +72,7 @@
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-105262657-2', 'auto');
+  ga('create', 'UA-105262657-1', 'auto');
   ga('send', 'pageview');
 
 </script>

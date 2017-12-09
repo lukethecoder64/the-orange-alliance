@@ -5,7 +5,7 @@
   <div class="row">
     <div class="col-xs-12">
       <p>The goal of TOA API is to provide us, and potential outside users a way to query our databases. </p>
-      <p>The Base URL for accessing anything related to our API is <a href="http://www.theorangealliance.org/api">http://www.theorangealliance.org/api</a></p>
+      <p>The Base URL for accessing anything related to our API is <a href="http://theorangealliance.org/apiv2">http://theorangealliance.org/apiv2</a></p>
       <h2 style="color: orange">Gaining Access to TOA API</h2>
       <p>In order to gain access to TOA API, you need to first gain access to an API key.  You can apply for an <a href="https://goo.gl/forms/u3E1sMuCNT9UcPmH3" target="_blank">API Key Here</a>. Once you have that key, you must set two custom headers with every GET request. You must set <code>X-Application-Origin</code> to the name of your application. Secondly, you must set <code>X-TOA-Key</code> to your API key. </p>
       <h2 style="color: orange">API Access Levels</h2>
@@ -34,15 +34,16 @@
     </div>
   </div>
 
+  <h3>API Route Example</h3>
+
   <div *ngFor="let route of api_routes" class="row">
     <div class="col-xs-12">
-      <h3 style="color: orange">{{ route.base_route }}</h3>
-      <P>{{ route.route }}</P>
+      <h3 style="color: orange" *ngIf="route.base == 'BASE'">Base</h3>
+      <P><strong>{{ route.route }}</strong> - {{ route.route_desc }}</P>
       <ul>
-        <li>{{ route.route_description }}</li>
-        <p>{{ route.example_example }}</p>
+        <p>{{ route.example }}</p>
         <ul>
-          <li>{{ route.route_notes }}</li>
+          {{ route.notes }}
         </ul>
       </ul>
     </div>

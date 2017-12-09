@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FTCDatabase } from '../../providers/ftc-database';
 import { MatchParser } from '../../util/match-utils';
+import { TheOrangeAllianceGlobals } from '../../app.globals';
 
 @Component({
   selector: 'toa-home',
   templateUrl: './home.component.html',
-  providers: [FTCDatabase]
+  providers: [FTCDatabase,TheOrangeAllianceGlobals]
 })
 export class HomeComponent {
 
@@ -18,9 +19,13 @@ export class HomeComponent {
   normal_match: any;
   match_count: number;
 
-  constructor(private router: Router, private ftc: FTCDatabase) {
+  match_insights: any;
+  insights: any;
+
+  constructor(private router: Router, private ftc: FTCDatabase, private globaltoa:TheOrangeAllianceGlobals) {
+    this.globaltoa.setTitle("Home")
     this.ftc.getAllMatches().subscribe((match_data) => {
-      this.match_count = match_data[0].MatchCount;
+      this.match_count = match_data[0].match_count;
     }, (err) => {
       console.log(err);
     });
@@ -81,12 +86,13 @@ export class HomeComponent {
     }, (err) => {
       console.log(err);
     });
-    this.ftc.getSeasonEvents('1617').subscribe((data) => {
+    this.ftc.getSeasonEvents('1718').subscribe((data) => {
       const today = new Date();
-      const next_week = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
       this.current_events = [];
       for (const event of data) {
-        if (this.isInDateRange(new Date(event.start_date), new Date(event.end_date), today, next_week)) {
+        let week_start = this.getStartOfWeek(new Date(event.start_date));
+        let week_end = this.getEndofWeek(new Date(event.end_date));
+        if (this.isBetweenDates(week_start, week_end, today)) {
           this.current_events.push(event);
         }
       }
@@ -104,15 +110,36 @@ export class HomeComponent {
     }, (err) => {
       console.log(err);
     });
+    this.ftc.getInsights().subscribe((data) => {
+      this.match_insights = data[0];
+      this.insights = [];
+      let i = 0;
+      for (let field in this.match_insights) {
+        if (this.match_insights.hasOwnProperty(field)) {
+          this.insights[i] = {
+            'field': field,
+            'value': this.match_insights[field]
+          };
+          i++;
+        }
+      }
+    }, (err) => {
+      console.log(err);
+    });
+  }
+
+  getStartOfWeek(d) {
+    let day = d.getDay();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() + (day == 0?-6:1)-day );
+  }
+
+  getEndofWeek(d) {
+    let day = d.getDay();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() + (day == 0?0:7)-day );
   }
 
   isBetweenDates(start_date, end_date, today) {
     return (today <= end_date && today >= start_date);
-  }
-
-  isInDateRange(start_date, end_date, today, next_week) {
-    return (start_date >= today && start_date <= next_week) ||
-      (today >= start_date && today <= end_date);
   }
 
   getBestMatch(matches: any) {

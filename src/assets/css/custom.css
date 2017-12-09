@@ -107,9 +107,16 @@ td, th {
 .match-winner {
   font-weight: bold;
 }
+.red.match-winner {
+  background-color: #ffe5e5;
+}
+.blue.match-winner {
+  background-color: #e5e5ff;
+}
 
 .current-team {
-  text-decoration: underline;
+  color: black;
+  font-weight: 600;
 }
 
 .allow-expand {
@@ -183,9 +190,6 @@ footer > div > div > p > a:hover, footer > div > div > p > a:active {
     display:block;
     width: 20%;
     position: absolute;
-    background-color: #eef;
-    border-radius: 25px;
-    border: 2px solid #ff9800;
   }
 }
 

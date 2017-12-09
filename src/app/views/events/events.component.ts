@@ -4,9 +4,10 @@ import { Router } from '@angular/router';
 import { FTCDatabase } from '../../providers/ftc-database';
 import { SeasonParser } from '../../util/season-utils';
 import { EventFilter } from '../../util/event-utils';
+import { TheOrangeAllianceGlobals } from '../../app.globals';
 
 @Component({
-  providers: [FTCDatabase],
+  providers: [FTCDatabase,TheOrangeAllianceGlobals],
   selector: 'toa-events',
   templateUrl: './events.component.html'
 })
@@ -23,10 +24,12 @@ export class EventsComponent implements OnInit {
 
   event_filter: EventFilter;
 
-  constructor(private ftc: FTCDatabase, private router: Router) {}
+  constructor(private ftc: FTCDatabase, private router: Router, private globaltoa:TheOrangeAllianceGlobals) {
+    this.globaltoa.setTitle("Events");
+  }
 
   ngOnInit(): void {
-    this.ftc.getSeasonEvents('1617').subscribe( (data) => {
+    this.ftc.getSeasonEvents('1718').subscribe( (data) => {
       this.weeks = [];
       this.events = data;
       this.event_filter = new EventFilter(this.events);
@@ -39,7 +42,7 @@ export class EventsComponent implements OnInit {
 
     this.ftc.getAllSeasons().subscribe( (data) => {
       this.seasons = data;
-      this.current_season = this.seasons[this.seasons.length - 2];
+      this.current_season = this.seasons[this.seasons.length - 1];
     }, (err) => {
       console.log(err);
     });
@@ -58,7 +61,7 @@ export class EventsComponent implements OnInit {
     this.weeks = [];
     let cur_week = null;
     for (let event of this.events) {
-      if (event.week_key != cur_week) {
+      if (event.week_key !== cur_week) {
         this.weeks.push({
           'week': event.week_key,
           'start_date': event.start_date,
@@ -84,7 +87,7 @@ export class EventsComponent implements OnInit {
   }
 
   selectSeason(season: any) {
-    if (this.current_season.SeasonID !== season.season_key) {
+    if (this.current_season.season_key !== season.season_key) {
       this.current_season = season;
       this.ftc.getSeasonEvents(this.current_season.season_key).subscribe( (data) => {
         this.weeks = [];
@@ -103,7 +106,7 @@ export class EventsComponent implements OnInit {
   selectRegion(region: any) {
     if (this.current_region.region_key !== region.region_key) {
       this.current_region = region;
-      if (this.current_region.region_desc) {
+      if (this.current_region.description) {
         this.event_filter.filterArray(this.current_region.region_key);
         this.events = this.event_filter.getFilteredArray();
       } else {
